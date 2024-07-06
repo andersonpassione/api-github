@@ -1,5 +1,6 @@
 package br.com.alura.screenmatch.exercicioApiGitHub;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -18,14 +19,25 @@ public class TesteAPIGitHub {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(""))
+                    .uri(URI.create(endereco))
+                    .header("Accept", "application/vnd.github.v3+json")
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             int statusCode = response.statusCode();
+
+            if (statusCode == 404){
+                throw new ErroConsultaGitHubException("O usuário " + usuario + " não foi encontrado no GitHub.");
+            }
+
             String json = response.body();
-        } catch (Exception e){
-            e.getMessage();
+            System.out.println(json);
+
+        } catch (IOException | InterruptedException e){
+            System.out.println("Houve um erro durante a consulta a API do GitHub.");
+            e.printStackTrace();
+        } catch (ErroConsultaGitHubException e){
+            System.out.println(e.getMessage());
         }
     }
 }
